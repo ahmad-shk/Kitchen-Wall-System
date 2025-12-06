@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useCallback } from "react"
 
 export function useNotificationSound() {
   const audioRef = useRef<HTMLAudioElement | null>(null)
-  const [isMuted, setIsMuted] = useState(true)
+  const [isMuted, setIsMuted] = useState(false)
   const previousOrderCountRef = useRef(0)
 
   // Initialize audio element
