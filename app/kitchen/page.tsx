@@ -10,9 +10,10 @@ import { RefreshCw, AlertCircle, Volume2, VolumeX } from "lucide-react"
 import { useNotificationSound } from "@/hooks/use-notification-sound"
 
 export default function KitchenPage() {
-  const { getAllActiveOrders, loading, error } = useRestaurant()
+  const { getAllActiveOrders, loading, error, getCompletedOrders } = useRestaurant()
   const [orders, setOrders] = useState<Order[]>([])
-  const [filter, setFilter] = useState<"all" | "pending" | "preparing" | "ready" | "serving">("all")
+  const [completedOrders, setCompletedOrders] = useState<Order[]>([])
+  const [filter, setFilter] = useState<"all" | "pending" | "preparing" | "ready" | "serving" | "completed">("all")
   const [isRefreshing, setIsRefreshing] = useState(false)
 
   const { playSound, isMuted, toggleMute, previousOrderCountRef } = useNotificationSound()
@@ -28,7 +29,10 @@ export default function KitchenPage() {
     previousOrderCountRef.current = currentOrderCount
 
     setOrders(activeOrders)
-  }, [getAllActiveOrders, playSound, previousOrderCountRef])
+
+    const completed = getCompletedOrders()
+    setCompletedOrders(completed)
+  }, [getAllActiveOrders, getCompletedOrders, playSound, previousOrderCountRef])
 
   const handleRefresh = async () => {
     setIsRefreshing(true)
@@ -36,7 +40,8 @@ export default function KitchenPage() {
     setTimeout(() => setIsRefreshing(false), 500)
   }
 
-  const filteredOrders = orders.filter((o) => (filter === "all" ? true : o.status === filter))
+  const displayOrders = filter === "completed" ? completedOrders : orders
+  const filteredOrders = displayOrders.filter((o) => (filter === "all" ? true : o.status === filter))
 
   return (
     <div className="min-h-screen bg-background p-4">
@@ -72,7 +77,7 @@ export default function KitchenPage() {
         <KitchenStats orders={orders} />
 
         <div className="flex gap-2 mb-6 flex-wrap">
-          {(["all", "pending", "preparing", "ready", "serving"] as const).map((status) => (
+          {(["all", "pending", "preparing", "ready", "serving", "completed"] as const).map((status) => (
             <Button
               key={status}
               onClick={() => setFilter(status)}

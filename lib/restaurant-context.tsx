@@ -3,7 +3,7 @@
 import type React from "react"
 import { createContext, useContext, useEffect, useState, useCallback } from "react"
 import type { Order } from "./types"
-import { subscribeToActiveOrders, updateOrderStatus as updateOrderInFirestore } from "./firestore"
+import { subscribeToActiveOrders, updateOrderStatus as updateOrderInFirestore, getCompletedOrders } from "./firestore"
 
 interface RestaurantContextType {
   orders: Order[]
@@ -11,28 +11,20 @@ interface RestaurantContextType {
   error: string | null
   updateOrderStatus: (orderId: string, status: Order["status"]) => Promise<void>
   getAllActiveOrders: () => Order[]
+  getCompletedOrders: () => Order[]
 }
 
 const RestaurantContext = createContext<RestaurantContextType | undefined>(undefined)
 
 export function RestaurantProvider({ children }: { children: React.ReactNode }) {
   const [orders, setOrders] = useState<Order[]>([])
+  const [completedOrders, setCompletedOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    let prevOrders: string[] = []
-
     try {
       const unsubscribe = subscribeToActiveOrders((updatedOrders) => {
-        // Play beep for new orders
-        const newOrder = updatedOrders.find(o => !prevOrders.includes(o.id))
-        if (newOrder) {
-          const audio = new Audio("/sounds/beep.mp3") // make sure this path exists
-          audio.play()
-        }
-
-        prevOrders = updatedOrders.map(o => o.id)
         setOrders(updatedOrders)
         setLoading(false)
         setError(null)
@@ -56,6 +48,21 @@ export function RestaurantProvider({ children }: { children: React.ReactNode }) 
     }
   }, [])
 
+  useEffect(() => {
+    const fetchCompletedOrders = async () => {
+      try {
+        const completed = await getCompletedOrders()
+        setCompletedOrders(completed)
+      } catch (error) {
+        console.error("Failed to fetch completed orders:", error)
+      }
+    }
+
+    fetchCompletedOrders()
+    const interval = setInterval(fetchCompletedOrders, 5000)
+    return () => clearInterval(interval)
+  }, [])
+
   const updateOrderStatus = useCallback(async (orderId: string, status: Order["status"]) => {
     try {
       await updateOrderInFirestore(orderId, status)
@@ -66,7 +73,13 @@ export function RestaurantProvider({ children }: { children: React.ReactNode }) 
     }
   }, [])
 
-  const getAllActiveOrders = useCallback(() => orders, [orders])
+  const getAllActiveOrders = useCallback(() => {
+    return orders
+  }, [orders])
+
+  const getCompletedOrdersCallback = useCallback(() => {
+    return completedOrders
+  }, [completedOrders])
 
   return (
     <RestaurantContext.Provider
@@ -76,6 +89,7 @@ export function RestaurantProvider({ children }: { children: React.ReactNode }) 
         error,
         updateOrderStatus,
         getAllActiveOrders,
+        getCompletedOrders: getCompletedOrdersCallback,
       }}
     >
       {children}
