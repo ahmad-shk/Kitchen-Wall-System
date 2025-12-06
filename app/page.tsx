@@ -11,7 +11,7 @@ export default function HomePage() {
       <div className="max-w-2xl w-full">
         <div className="text-center mb-12">
           <h1 className="text-5xl font-bold text-foreground mb-3">Kitchen Wall System</h1>
-          <p className="text-lg text-muted-foreground">Real-time order management powered by Firebase</p>
+          <p className="text-lg text-muted-foreground">Real-time order management</p>
         </div>
 
         <Card className="p-8">
