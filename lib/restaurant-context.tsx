@@ -21,8 +21,18 @@ export function RestaurantProvider({ children }: { children: React.ReactNode }) 
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    let prevOrders: string[] = []
+
     try {
       const unsubscribe = subscribeToActiveOrders((updatedOrders) => {
+        // Play beep for new orders
+        const newOrder = updatedOrders.find(o => !prevOrders.includes(o.id))
+        if (newOrder) {
+          const audio = new Audio("/sounds/beep.mp3") // make sure this path exists
+          audio.play()
+        }
+
+        prevOrders = updatedOrders.map(o => o.id)
         setOrders(updatedOrders)
         setLoading(false)
         setError(null)
@@ -49,7 +59,6 @@ export function RestaurantProvider({ children }: { children: React.ReactNode }) 
   const updateOrderStatus = useCallback(async (orderId: string, status: Order["status"]) => {
     try {
       await updateOrderInFirestore(orderId, status)
-      // Update local state optimistically
       setOrders((prev) => prev.map((o) => (o.id === orderId ? { ...o, status, updatedAt: Date.now() } : o)))
     } catch (error) {
       console.error("Failed to update order status:", error)
@@ -57,9 +66,7 @@ export function RestaurantProvider({ children }: { children: React.ReactNode }) 
     }
   }, [])
 
-  const getAllActiveOrders = useCallback(() => {
-    return orders
-  }, [orders])
+  const getAllActiveOrders = useCallback(() => orders, [orders])
 
   return (
     <RestaurantContext.Provider
