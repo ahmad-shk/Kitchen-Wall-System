@@ -30,15 +30,6 @@ export default function HomePage() {
             </div>
           </div>
         </Card>
-
-        <div className="mt-8 p-6 bg-card rounded-lg border border-border">
-          <h3 className="font-semibold text-foreground mb-2">Environment Setup</h3>
-          <ol className="text-sm text-muted-foreground space-y-2 list-decimal list-inside">
-            <li>Add your Firebase credentials to the Vercel environment variables</li>
-            <li>Required variables: NEXT_PUBLIC_FIREBASE_API_KEY, NEXT_PUBLIC_FIREBASE_PROJECT_ID, etc.</li>
-            <li>The kitchen wall will auto-sync with Firestore</li>
-          </ol>
-        </div>
       </div>
     </div>
   )

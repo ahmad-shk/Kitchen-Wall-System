@@ -49,7 +49,7 @@ export default function KitchenPage() {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-4xl font-bold text-foreground">Kitchen Wall</h1>
-            {error && (
+            {/* {error && (
               <div className="flex items-center gap-2 text-sm text-red-600 mt-2">
                 <AlertCircle className="w-4 h-4" />
                 {error}
@@ -60,7 +60,7 @@ export default function KitchenPage() {
                 <AlertCircle className="w-4 h-4" />
                 {loading ? "Connecting to Firebase..." : "Live updates from Firebase"}
               </div>
-            )}
+            )} */}
           </div>
           <div className="flex gap-2">
             <Button onClick={toggleMute} size="sm" variant={isMuted ? "outline" : "default"}>
