@@ -8,8 +8,14 @@ import { KitchenStats } from "@/components/kitchen-stats"
 import { Button } from "@/components/ui/button"
 import { RefreshCw, AlertCircle, Volume2, VolumeX } from "lucide-react"
 import { useNotificationSound } from "@/hooks/use-notification-sound"
+import { getTranslation } from "@/lib/translations"
+import { useLanguage } from "@/lib/language-context"
 
 export default function KitchenPage() {
+
+  const { language } = useLanguage()
+  const t = (key: string) => getTranslation(language, key as any)
+
   const { getAllActiveOrders, loading, error, getCompletedOrders } = useRestaurant()
   const [orders, setOrders] = useState<Order[]>([])
   const [completedOrders, setCompletedOrders] = useState<Order[]>([])
@@ -48,19 +54,7 @@ export default function KitchenPage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-4xl font-bold text-foreground">Kitchen Wall</h1>
-            {/* {error && (
-              <div className="flex items-center gap-2 text-sm text-red-600 mt-2">
-                <AlertCircle className="w-4 h-4" />
-                {error}
-              </div>
-            )}
-            {!error && (
-              <div className="flex items-center gap-2 text-sm text-green-600 mt-2">
-                <AlertCircle className="w-4 h-4" />
-                {loading ? "Connecting to Firebase..." : "Live updates from Firebase"}
-              </div>
-            )} */}
+            <h1 className="text-4xl font-bold text-foreground">{t("KitchenWallDashboardHeading")}</h1>
           </div>
           <div className="flex gap-2">
             <Button onClick={toggleMute} size="sm" variant={isMuted ? "outline" : "default"}>
@@ -77,22 +71,31 @@ export default function KitchenPage() {
         <KitchenStats orders={orders} />
 
         <div className="flex gap-2 mb-6 flex-wrap">
-          {(["all", "pending", "preparing", "ready", "serving", "completed"] as const).map((status) => (
-            <Button
-              key={status}
-              onClick={() => setFilter(status)}
-              variant={filter === status ? "default" : "outline"}
-              size="sm"
-            >
-              {status.charAt(0).toUpperCase() + status.slice(1)}
-            </Button>
-          ))}
+          <div className="flex gap-2 mb-6 flex-wrap">
+            {([
+              "all",
+              "pending",
+              "preparing",
+              "ready",
+              "serving",
+              "completed",
+            ] as const).map((status) => (
+              <Button
+                key={status}
+                onClick={() => setFilter(status)}
+                variant={filter === status ? "default" : "outline"}
+                size="sm"
+              >
+                {t(`KitchenFilter_${status}`)}
+              </Button>
+            ))}
+          </div>
         </div>
 
         {filteredOrders.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-muted-foreground text-lg">
-              {filter === "all" ? "No active orders" : `No ${filter} orders`}
+              {filter === "all" ? t("noActiveOrders") : t(`no${filter.charAt(0).toUpperCase() + filter.slice(1)}Orders`)}
             </p>
           </div>
         ) : (
