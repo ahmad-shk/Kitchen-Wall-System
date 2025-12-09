@@ -59,11 +59,11 @@ export default function KitchenPage() {
           <div className="flex gap-2">
             <Button onClick={toggleMute} size="sm" variant={isMuted ? "outline" : "default"}>
               {isMuted ? <VolumeX className="w-4 h-4 mr-2" /> : <Volume2 className="w-4 h-4 mr-2" />}
-              {isMuted ? "Muted" : "Sound On"}
+              {isMuted ? t("soundButton_mute") : t("soundButton_unmute")  }
             </Button>
             <Button onClick={handleRefresh} disabled={isRefreshing} size="sm">
               <RefreshCw className="w-4 h-4 mr-2" />
-              Refresh
+              {t("refresh")}
             </Button>
           </div>
         </div>
